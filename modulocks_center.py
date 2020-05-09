@@ -3,12 +3,14 @@
 import os, subprocess, time, threading
 import mlcomm
 
-background_music = "/home/pi/background_music.mp3"
-main_sound_dir = "/home/pi/"
+background_music = "/home/pi/modulocks_center/sounds/background_music.mp3"
+main_sound_dir = "/home/pi/modulocks_center/sounds/"
 
 fade_out_time = 0.01  # not exact timing
 low_background_volume = 50  # background music volume when playing an effect
 current_vol = 100
+
+executer_max_timeout = 60
 
 background = subprocess.Popen(
     ['mplayer', '-slave', '-channels', '6', '-ao', 'pulse', '-quiet', '-loop', '0', background_music],
@@ -57,10 +59,11 @@ def main_center_thread():
             if resp_cmd == mlcomm.commands['DOIT']:
                 if resp_data[0] == b'\x01':
                     print("Node ", str(node), " solved.")
-                    mlcomm.execute(resp_data[1:12])
                     music = resp_data[12:].decode()
                     play(music)
-                    # TODO play musica
+                    if mlcomm.executer_present:
+                        mlcomm.execute(resp_data[1:12])
+                        mlcomm.receiveAnswer('ACK', executer_max_timeout)     # waiting for the executer to finish
 
             if resp_cmd == mlcomm.commands['SOLVE_BUTTON']:
                 if resp_data[0] != b'\x00':

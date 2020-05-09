@@ -8,6 +8,10 @@ GAME_SOLVE_TABLE_ADDRESS    = 0x04
 
 NODE_START_ADDRESS          = 0x10
 
+executer_present = False
+
+basic_timeout = 5
+
 commands = {
     'PING':         0x01,
     'ACK':          0x02,
@@ -69,12 +73,12 @@ def sendCommand(command, data, destination):
 
     bus.sendRS485(packet, answerWantedLUT[command])
 
-def receiveAnswer(command):
+def receiveAnswer(command, timeout = basic_timeout):
     """
     :param command: command to wait for
     :return: if answer contains command: data; else: False
     """
-    packet = bus.receiveRS485(commandDataLengths[command])
+    packet = bus.receiveRS485(commandDataLengths[command], timeout)
 
     if packet:
         if packet[2] == command:
@@ -158,13 +162,16 @@ def nodeMapping():
     """
     :return: array of active node addresses including fixed node addresses
     """
-    global CENTER_ADDRESS, BROADCAST_ADDRESS
+    global CENTER_ADDRESS, BROADCAST_ADDRESS, executer_present
     nodeList = []
 
-    for addr in range(256):
-        if addr != CENTER_ADDRESS and addr != BROADCAST_ADDRESS and addr!= CENTER_EXECUTER_ADDRESS:
+    for addr in range(20):      # TODO set range to 256!!!!!
+        if addr != CENTER_ADDRESS and addr != BROADCAST_ADDRESS:
             if(pingNode(addr)):
-                nodeList.append(addr)
+                if addr == CENTER_EXECUTER_ADDRESS:
+                    executer_present = True
+                else:
+                    nodeList.append(addr)
 
     print("Nodes mapped:")
     print(nodeList)
