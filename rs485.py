@@ -1,3 +1,5 @@
+#!/bin/python3
+
 import serial, time
 import RPi.GPIO as GPIO
 

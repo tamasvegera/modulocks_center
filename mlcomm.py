@@ -1,3 +1,4 @@
+#!/bin/python3
 import rs485
 
 BROADCAST_ADDRESS           = 0x00
