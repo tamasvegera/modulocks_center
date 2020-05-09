@@ -33,6 +33,8 @@ class RS485:
             self.locked = False
 
     def receiveRS485(self, length, timeout=0.02):
+        if self.port.timeout != timeout:
+            self.port.timeout = timeout
+
         self.port.read(length)
-        self.port.timeout = timeout
         self.locked = False

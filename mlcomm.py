@@ -73,7 +73,7 @@ def sendCommand(command, data, destination):
 
     bus.sendRS485(packet, answerWantedLUT[command])
 
-def receiveAnswer(command, timeout = basic_timeout):
+def receiveAnswer(command, timeout = 5):
     """
     :param command: command to wait for
     :return: if answer contains command: data; else: False
