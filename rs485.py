@@ -36,5 +36,7 @@ class RS485:
         if self.port.timeout != timeout:
             self.port.timeout = timeout
 
-        self.port.read(length)
+        result = self.port.read(length)
         self.locked = False
+
+        return result
