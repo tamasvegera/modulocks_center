@@ -53,7 +53,7 @@ def sendCommand(command, data, destination):
     :param destination: 1 byte int, destination node address
     :return: -
     """
-    packet = b'x02'     # start byte
+    packet = b'\x02'     # start byte
 
     packet += destination.to_bytes(1, byteorder='big')
     packet += commands[command].to_bytes(1, byteorder='big')
@@ -65,7 +65,7 @@ def sendCommand(command, data, destination):
         checksum += data
 
     packet += checksum.to_bytes(2, byteorder='little')
-    packet += b'x03'
+    packet += b'\x03'
 
     bus.sendRS485(packet, answerWantedLUT[command])
 
