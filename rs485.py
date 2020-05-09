@@ -1,4 +1,4 @@
-import serial
+import serial, time
 import RPi.GPIO as GPIO
 
 BAUD = 115200
@@ -36,7 +36,8 @@ class RS485:
 #        if self.port.timeout != timeout:
 #            self.port.timeout = timeout
 
+        start = time.time()
         result = self.port.read(length)
+        print(time.time()-start)
         self.locked = False
-        print(result)
         return result
