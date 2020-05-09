@@ -38,5 +38,5 @@ class RS485:
 
         result = self.port.read(length)
         self.locked = False
-
+        print(result)
         return result
