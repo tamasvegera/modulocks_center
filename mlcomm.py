@@ -76,17 +76,19 @@ def receiveAnswer(command):
     """
     packet = bus.receiveRS485(commandDataLengths[command])
 
-    if packet[2] == command:
-        data_length = packet[3]
-        data_end = data_length + 4
-        data = bytearray(packet[4: data_end])
+    if packet:
+        if packet[2] == command:
+            data_length = packet[3]
+            data_end = data_length + 4
+            data = bytearray(packet[4: data_end])
 
-        # TODO check checksum
+            # TODO check checksum
 
-        return data
+            return data
 
-    else:
-        return False
+        else:
+            return False
+    return False
 
 def pingNode(address):
     """
