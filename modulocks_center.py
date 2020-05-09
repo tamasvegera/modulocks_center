@@ -79,5 +79,6 @@ def main_center_thread():
                     # TODO language selection
                     pass
 
+print("Started")
 t = threading.Thread(target=main_center_thread)
 t.start()
