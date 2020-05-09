@@ -1,10 +1,7 @@
 #!/bin/python3
 
-import os
-import serial
-import subprocess
-import time
-
+import os, subprocess, time, threading
+import mlcomm
 
 background_music = "/home/pi/background_music.mp3"
 main_sound_dir = "/home/pi/"
@@ -51,12 +48,33 @@ def play(item):
     background_fade_in()
     print('--> done')
 
+def main_center_thread():
+    nodeList = mlcomm.nodeMapping()
 
-message = "Test\n"
-port.write(message.encode())
+    while True:
+        for node in nodeList:
+            resp_cmd, resp_data = mlcomm.whatsup(node)
+            if resp_cmd == mlcomm.commands['DOIT']:
+                if resp_data[0] == b'\x01':
+                    print("Node ", str(node), " solved.")
+                    mlcomm.execute(resp_data[1:12])
+                    music = resp_data[12:].decode()
+                    play(music)
+                    # TODO play musica
 
+            if resp_cmd == mlcomm.commands['SOLVE_BUTTON']:
+                if resp_data[0] != b'\x00':
+                    to_solve = int.from_bytes(resp_data, byteorder='little')
+                    print("Solve button pressed: ", str(to_solve))
+                    # TODO if node does not answer
+                    mlcomm.solveGame(to_solve)
 
-while True:
-    item = port.readline().decode('ascii').rstrip()
-    print(item)
-    play(item)
+            if resp_cmd == mlcomm.commands['LANG_SEL']:
+                if resp_data[0] != b'\x00':
+                    new_lang = int.from_bytes(resp_data, byteorder='little')
+                    print("Language changed to: ", new_lang)
+                    # TODO language selection
+                    pass
+
+t = threading.Thread(target=main_center_thread)
+t.start()

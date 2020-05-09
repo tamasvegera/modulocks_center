@@ -1,5 +1,13 @@
 import rs485
 
+BROADCAST_ADDRESS           = 0x00
+CENTER_ADDRESS              = 0x01
+CENTER_EXECUTER_ADDRESS     = 0x02
+LANGUAGE_SELECTOR_ADDRESS   = 0x03
+GAME_SOLVE_TABLE_ADDRESS    = 0x04
+
+NODE_START_ADDRESS          = 0x10
+
 commands = {
     'PING':         0x01,
     'ACK':          0x02,
@@ -12,5 +20,150 @@ commands = {
     'EXECUTE':      0x09
 }
 
-def sendCommand(command, data):
-    
+answerWantedLUT = {
+    'PING':         True,
+    'ACK':          False,
+    'NACK':         False,
+    'SOLVE_GAME':   True,
+    'WHATSUP':      True,
+    'DOIT':         False,
+    'SOLVE_BUTTON': False,
+    'LANG_SEL':     False,
+    'EXECUTE':      True
+}
+
+commandDataLengths = {
+    'PING':         0,
+    'ACK':          0,
+    'NACK':         0,
+    'SOLVE_GAME':   0,
+    'WHATSUP':      0,
+    'DOIT':         32,
+    'SOLVE_BUTTON': 1,
+    'LANG_SEL':     1,
+    'EXECUTE':      11
+}
+
+bus = rs485.RS485()
+
+def sendCommand(command, data, destination):
+    """
+    :param command:     string, element of commands{}
+    :param data:        bytearray, data to send
+    :param destination: 1 byte int, destination node address
+    :return: -
+    """
+    packet = b'x02'     # start byte
+
+    packet += destination.to_bytes(1, byteorder='big')
+    packet += commands[command].to_bytes(1, byteorder='big')
+    packet += len(data).to_bytes(1, byteorder='big')
+    packet += data
+    checksum = 0
+
+    for i in range(len(data)):
+        checksum += data
+
+    packet += checksum.to_bytes(2, byteorder='little')
+    packet += b'x03'
+
+    bus.sendRS485(packet, answerWantedLUT[command])
+
+def receiveAnswer(command):
+    """
+    :param command: command to wait for
+    :return: if answer contains command: data; else: False
+    """
+    packet = bus.receiveRS485(commandDataLengths[command])
+
+    if packet[2] == command:
+        data_length = packet[3]
+        data_end = data_length + 4
+        data = bytearray(packet[4: data_end])
+
+        # TODO check checksum
+
+        return data
+
+    else:
+        return False
+
+def pingNode(address):
+    """
+    :param address:     node address to ping
+    :return: True or False
+    """
+    sendCommand('PING', b'', address)
+    result = receiveAnswer('ACK')
+
+    if result == b'':        # ACK has no data
+        return True
+    else:
+        return False
+
+def solveGame(address):
+    """
+    :param address: game node address to solve
+    :return: if node acking: DOIT data, else False
+    """
+
+    sendCommand('SOLVE_GAME', b'', address)
+    return receiveAnswer('DOIT')
+
+def whatsup(address):
+    """
+    :param address: node address to ask
+    :return: answer command, data
+    """
+
+    global GAME_SOLVE_TABLE_ADDRESS, LANGUAGE_SELECTOR_ADDRESS, NODE_START_ADDRESS
+
+    sendCommand('WHATSUP', b'', address)
+
+    if address == LANGUAGE_SELECTOR_ADDRESS:
+        command = 'LANG_SEL'
+        result = receiveAnswer(command)
+
+    elif address == GAME_SOLVE_TABLE_ADDRESS:
+        command = 'SOLVE_BUTTON'
+        result = receiveAnswer(command)
+
+    elif address >= NODE_START_ADDRESS:
+        command = 'DOIT'
+        result = receiveAnswer(command)
+
+    if result != False:
+        return command, result
+    else:
+        return False, False
+
+def execute(data):
+    """
+    :param data: data to send to executer
+    :return: True or False
+    """
+    global CENTER_EXECUTER_ADDRESS
+
+    sendCommand('EXECUTE', data, CENTER_EXECUTER_ADDRESS)
+    result = receiveAnswer('ACK')
+
+    if result == b'':
+        return True
+    else:
+        return False
+
+def nodeMapping():
+    """
+    :return: array of active node addresses including fixed node addresses
+    """
+    global CENTER_ADDRESS, BROADCAST_ADDRESS
+    nodeList = []
+
+    for addr in range(256):
+        if addr != CENTER_ADDRESS and addr != BROADCAST_ADDRESS and addr!= CENTER_EXECUTER_ADDRESS:
+            if(pingNode(addr)):
+                nodeList.append(addr)
+
+    print("Nodes mapped:")
+    print(nodeList)
+    return nodeList
