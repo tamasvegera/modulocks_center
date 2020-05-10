@@ -51,7 +51,7 @@ def play_thread(item):
 
 
 def start_play(item):
-    t = threading.Thread(target=play_thread, args=(item))
+    t = threading.Thread(target=play_thread, args=(item,))
     t.start()
 
 def main_center_thread():
