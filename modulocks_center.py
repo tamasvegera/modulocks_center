@@ -57,7 +57,7 @@ def main_center_thread():
         for node in nodeList:
             resp_cmd, resp_data = mlcomm.whatsup(node)
             # TODO node not answering
-            if resp_cmd == mlcomm.commands['DOIT']:
+            if resp_cmd == 'DOIT':
                 if resp_data[0] == 0x01:
                     print("Node ", str(node), " solved.")
                     music = resp_data[12:].decode()
@@ -66,14 +66,14 @@ def main_center_thread():
                         mlcomm.execute(resp_data[1:12])
                         mlcomm.receiveAnswer('ACK', executer_max_timeout)     # waiting for the executer to finish
 
-            if resp_cmd == mlcomm.commands['SOLVE_BUTTON']:
+            if resp_cmd == 'SOLVE_BUTTON':
                 if resp_data[0] != 0x00:
                     to_solve = int.from_bytes(resp_data, byteorder='little')
                     print("Solve button pressed: ", str(to_solve))
                     # TODO if node does not answer
                     mlcomm.solveGame(to_solve)
 
-            if resp_cmd == mlcomm.commands['LANG_SEL']:
+            if resp_cmd == 'LANG_SEL':
                 if resp_data[0] != 0x00:
                     new_lang = int.from_bytes(resp_data, byteorder='little')
                     print("Language changed to: ", new_lang)
