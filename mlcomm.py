@@ -125,6 +125,8 @@ def whatsup(address):
 
     sendCommand('WHATSUP', b'', address)
 
+    result = False
+
     if address == LANGUAGE_SELECTOR_ADDRESS:
         command = 'LANG_SEL'
         result = receiveAnswer(command)
