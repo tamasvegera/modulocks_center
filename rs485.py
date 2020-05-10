@@ -46,5 +46,6 @@ class RS485:
                 break
 
         print(time.time()-start)
+        print(result)
         self.locked = False
         return result
