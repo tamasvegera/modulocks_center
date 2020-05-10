@@ -56,6 +56,7 @@ def main_center_thread():
     while True:
         for node in nodeList:
             resp_cmd, resp_data = mlcomm.whatsup(node)
+            # TODO node not answering
             if resp_cmd == mlcomm.commands['DOIT']:
                 if resp_data[0] == b'\x01':
                     print("Node ", str(node), " solved.")

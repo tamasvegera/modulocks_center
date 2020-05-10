@@ -78,19 +78,21 @@ def receiveAnswer(command, timeout = 1):
     :param command: command to wait for
     :return: if answer contains command: data; else: False
     """
-    packet = bus.receiveRS485(commandDataLengths[command] + packet_overhead_length, timeout)
+    packet_length = commandDataLengths[command] + packet_overhead_length
+    packet = bus.receiveRS485(packet_length, timeout)
 
     if packet:
-        if packet[2] == commands[command]:
-            data_length = packet[3]
-            data_end = data_length + 4
-            data = bytearray(packet[4: data_end])
+        if len(packet) == packet_length:
+            if packet[2] == commands[command]:
+                data_length = packet[3]
+                data_end = data_length + 4
+                data = bytearray(packet[4: data_end])
 
-            # TODO check checksum
-            return data
+                # TODO check checksum
+                return data
 
-        else:
-            return False
+            else:
+                return False
     return False
 
 def pingNode(address):
