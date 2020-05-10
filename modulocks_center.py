@@ -43,12 +43,16 @@ def background_fade_in():
         background.stdin.flush()
         # time.sleep(fade_out_time/(100-low_background_volume))
 
-
-def play(item):
+def play_thread(item):
     background_fade_out()
     os.system("mplayer -ao pulse -volume 100 -channels 6 " + main_sound_dir + item + " -quiet -slave 2> /dev/null")
     background_fade_in()
-    print('--> done')
+    print('Playing music is done')
+
+
+def start_play(item):
+    t = threading.Thread(target=play_thread, args=(item))
+    t.start()
 
 def main_center_thread():
     nodeList = mlcomm.nodeMapping()
@@ -61,7 +65,7 @@ def main_center_thread():
                 if resp_data[0] == 0x01:
                     print("Node ", str(node), " solved.")
                     music = resp_data[12:].decode().strip('\0')
-                    play(music)
+                    start_play(music)
                     if mlcomm.executer_present:
                         mlcomm.execute(resp_data[1:12])
                         mlcomm.receiveAnswer('ACK', executer_max_timeout)     # waiting for the executer to finish
