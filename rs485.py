@@ -8,7 +8,7 @@ RS485_REDE_PIN = 23
 
 class RS485:
     def __init__(self, baudrate=BAUD):
-        self.port = serial.Serial(baudrate=baudrate, bytesize=8, parity=serial.PARITY_NONE, port="/dev/ttyS0", rtscts=0,
+        self.port = serial.Serial(baudrate=baudrate, bytesize=8, parity=serial.PARITY_NONE, port="/dev/ttyAMA0", rtscts=0,
                              xonxoff=0, stopbits=1, timeout=None)
 
         GPIO.setmode(GPIO.BCM)
