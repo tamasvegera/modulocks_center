@@ -40,9 +40,10 @@ class RS485:
 
         start = time.time()
 
+        result = b''
         while True:
-            result = self.port.read(length)
-            if result != b'' or time.time()-start >= timeout:
+            result += self.port.read()
+            if len(result) == length or time.time()-start >= timeout:
                 break
 
         print(time.time()-start)
