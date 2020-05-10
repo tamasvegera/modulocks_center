@@ -11,7 +11,7 @@ NODE_START_ADDRESS          = 0x10
 
 executer_present = False
 
-basic_timeout = 5
+basic_timeout = 0.1
 
 commands = {
     'PING':         0x01,
@@ -74,7 +74,7 @@ def sendCommand(command, data, destination):
 
     bus.sendRS485(packet, answerWantedLUT[command])
 
-def receiveAnswer(command, timeout = 5):
+def receiveAnswer(command, timeout = 0.1):
     """
     :param command: command to wait for
     :return: if answer contains command: data; else: False
