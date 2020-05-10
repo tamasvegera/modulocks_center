@@ -11,6 +11,7 @@ NODE_START_ADDRESS          = 0x10
 
 executer_present = False
 
+packet_overhead_length = 7      # packet length - data length
 commands = {
     'PING':         0x01,
     'ACK':          0x02,
@@ -77,7 +78,7 @@ def receiveAnswer(command, timeout = 1):
     :param command: command to wait for
     :return: if answer contains command: data; else: False
     """
-    packet = bus.receiveRS485(commandDataLengths[command], timeout)
+    packet = bus.receiveRS485(commandDataLengths[command] + packet_overhead_length, timeout)
 
     if packet:
         if packet[2] == command:
