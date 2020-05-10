@@ -39,7 +39,12 @@ class RS485:
 #            self.port.timeout = timeout
 
         start = time.time()
-        result = self.port.read(length)
+
+        while True:
+            result = self.port.read(length)
+            if result != b'' or time.time()-start >= timeout:
+                break
+
         print(time.time()-start)
         self.locked = False
         return result
