@@ -60,8 +60,7 @@ def main_center_thread():
             if resp_cmd == 'DOIT':
                 if resp_data[0] == 0x01:
                     print("Node ", str(node), " solved.")
-                    music = resp_data[12:].decode()
-                    print(music)
+                    music = resp_data[12:].decode().strip('\0')
                     play(music)
                     if mlcomm.executer_present:
                         mlcomm.execute(resp_data[1:12])
