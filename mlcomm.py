@@ -87,7 +87,6 @@ def receiveAnswer(command, timeout = 1):
             data = bytearray(packet[4: data_end])
 
             # TODO check checksum
-
             return data
 
         else:
@@ -102,10 +101,10 @@ def pingNode(address):
     sendCommand('PING', b'', address)
     result = receiveAnswer('ACK')
 
-    if result == b'':        # ACK has no data
-        return True
-    else:
+    if result == False:        # ACK has no data
         return False
+    else:
+        return True
 
 def solveGame(address):
     """
