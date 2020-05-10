@@ -81,7 +81,7 @@ def receiveAnswer(command, timeout = 1):
     packet = bus.receiveRS485(commandDataLengths[command] + packet_overhead_length, timeout)
 
     if packet:
-        if packet[2] == commands[command].to_bytes(1):
+        if packet[2] == commands[command].to_bytes(1, byteorder='little'):
             data_length = packet[3]
             data_end = data_length + 4
             data = bytearray(packet[4: data_end])
